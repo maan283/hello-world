@@ -5,5 +5,5 @@ steps:
     args: ['compute', 'ssh', 'cicd', '--command', 'cd ~/hello-world && npm install && pm2 start hello-world.js']
 
 options:
-  logging: NONE
+  logging: CLOUD_LOGGING_ONLY
 

@@ -1,0 +1,5 @@
+steps:
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['compute', 'scp', '--recurse', '.', 'cicd:~/hello-world']
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['compute', 'ssh', 'cicd', '--command', 'cd ~/hello-world && npm install && pm2 start app.js']

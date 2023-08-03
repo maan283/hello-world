@@ -1,7 +1,9 @@
 steps:
   - name: 'gcr.io/cloud-builders/gcloud'
-    args: ['compute', 'scp', '--recurse', '.', 'cicd:~/hello-world']
+    args: ['compute', 'scp', '--recurse', '.', 'your-vm-instance-name:~/app']
   - name: 'gcr.io/cloud-builders/gcloud'
-    args: ['compute', 'ssh', 'cicd', '--command', 'cd ~/hello-world && npm install && pm2 start app.js']
-    options:
+    args: ['compute', 'ssh', 'your-vm-instance-name', '--command', 'cd ~/app && npm install && pm2 start app.js']
+
+options:
   logging: NONE
+

@@ -1,9 +1,13 @@
 steps:
   - name: 'gcr.io/cloud-builders/gcloud'
-    args: ['compute', 'scp', '--recurse', '.', 'cicd:~/hello-world']
-  - name: 'gcr.io/cloud-builders/gcloud'
-    args: ['compute', 'ssh', 'cicd', '--command', 'cd ~/hello-world && npm install && pm2 start hello-world.js']
+    args:
+      - 'compute'
+      - 'ssh'
+      - 'cicd'  # Replace with the name of your Compute Engine instance
+      - '--command'
+      - 'cd /home/syedusmanabid627/hello-world && npm install && pm2 start app.js'
 
 options:
   logging: CLOUD_LOGGING_ONLY
+
 

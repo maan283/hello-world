@@ -14,11 +14,6 @@ jobs:
           echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -t rsa ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
-      - name: Get SSH fingerprint
-        id: fingerprint
-        uses: juliangruber/ssh-fingerprint-action@v1
-        with:
-          hostname: ${{ secrets.REMOTE_HOST }}
 
       - name: Add known hosts
         run: |

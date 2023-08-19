@@ -1,0 +1,27 @@
+name: Deploy app
+on:
+  push:
+    branches: [ main ]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup SSH
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -t rsa ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
+      - name: Get SSH fingerprint
+        id: fingerprint
+        uses: ./.github/actions/fingerprint
+        with:
+          hostname: ${{ secrets.REMOTE_HOST }}
+      - name: Add known hosts
+        run: |
+          echo "${{ steps.fingerprint.outputs.fingerprint }}" >> ~/.ssh/known_hosts
+          cat ~/.ssh/known_hosts
+      - name: Rsync files
+        run: rsync -avz --delete ./ ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:${{ secrets.REMOTE_PATH }}

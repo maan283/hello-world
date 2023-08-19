@@ -1,0 +1,12 @@
+name: 'Get SSH fingerprint'
+description: 'Get the SSH fingerprint of a remote host'
+inputs:
+  hostname: 35.226.46.235
+    description: 'The hostname of the remote host'
+    required: true
+outputs:
+  fingerprint:
+    description: 'The SSH fingerprint of the remote host'
+runs:
+  using: 'node12'
+  main: 'index.js'

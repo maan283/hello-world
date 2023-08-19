@@ -16,9 +16,10 @@ jobs:
           ssh-keyscan -t rsa ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
       - name: Get SSH fingerprint
         id: fingerprint
-        uses: ./.github/actions/fingerprint
+        uses: juliangruber/ssh-fingerprint-action@v1
         with:
           hostname: ${{ secrets.REMOTE_HOST }}
+
       - name: Add known hosts
         run: |
           echo "${{ steps.fingerprint.outputs.fingerprint }}" >> ~/.ssh/known_hosts

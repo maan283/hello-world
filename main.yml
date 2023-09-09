@@ -1,0 +1,45 @@
+name: Deploy app
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: "npm"
+
+      - name: NPM CI
+        run: npm ci
+
+      - name: Deploy Code
+        uses: burnett01/rsync-deployments@6.0.0
+        with:
+          switches: -avzr --delete
+          path: .
+          remote_path: /home/syedusmanabid627/hello-world
+          remote_host: ${{ secrets.SSH_REMOTE_HOST }}
+          remote_user: syedusmanabid627
+          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Pm2 Reload
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_REMOTE_HOST }}
+          username: syedusmanabid627
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/syedusmanabid627/hello-world
+            # rm -rf hello-world
+            # GIT_SSH_COMMAND="ssh -o IdentitiesOnly=yes -i /root/prod/themegabyte-hello-world-do" git clone --depth=1 --branch=main git@github.com:themegabyte/hello-world.git
+            #cd hello-world
+            #export PATH=/root/.nvm/versions/node/v18.17.1/bin:/usr/bin
+            export GIT_REVISION=$(git rev-parse HEAD)
+            # npm i
+            pm2 reload app.js --name hello-world --update-env

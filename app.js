@@ -1,9 +1,12 @@
-const express = require('express');
+const express = require("express");
+require("dotenv").config();
 const app = express();
 const port = 3000;
 
-app.get('/', (req, res) => {
-  res.send('Hello, World how are you!');
+const revision = process.env.GIT_REVISION || "No revision";
+
+app.get("/", (req, res) => {
+  res.send(`Hello, World how are you! This is a change. Latest Commit: ${revision}`);
 });
 
 app.listen(port, () => {

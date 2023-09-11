@@ -1,23 +1,35 @@
 name: Deploy app
 on:
   push:
-    branches: [ main ]
+    branches: ["main"]
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Setup SSH
-        env:
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -t rsa ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
+      - name: Code Checkout
+        uses: actions/checkout@v2
 
-      - name: Add known hosts
-        run: |
-          echo "${{ steps.fingerprint.outputs.fingerprint }}" >> ~/.ssh/known_hosts
-          cat ~/.ssh/known_hosts
-      - name: Rsync files
-        run: rsync -avz --delete ./ ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:${{ secrets.REMOTE_PATH }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: "npm"
+
+      - name: NPM CI
+        run: npm ci
+
+      - name: Testing Rsync
+        run: rsync -avzr --delete --rsh="/usr/bin/sshpass -p ${{ secrets.SSH_REMOTE_PASS }} ssh -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -o PreferredAuthentications=password -l ${{ secrets.SSH_REMOTE_USER }}" . ${{ secrets.SSH_REMOTE_USER }}@${{ secrets.SSH_REMOTE_HOST }}:${{ vars.SSH_REMOTE_RSYNC_PATH }}
+      # must do `pm2 start app.js --name hello-world --update-env` on server
+      - name: Pm2 Reload
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_REMOTE_HOST }}
+          username: ${{ secrets.SSH_REMOTE_USER }}
+          password: ${{ secrets.SSH_REMOTE_PASS }}
+          script: |
+            cd ${{ vars.SSH_REMOTE_RSYNC_PATH }}
+            echo $PATH  
+            export PATH=${{vars.SSH_NODE_PATH}}:/usr/bin
+            export GIT_REVISION=$(git rev-parse HEAD)
+            pm2 reload app.js --name hello-world --update-env

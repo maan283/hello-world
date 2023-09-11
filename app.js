@@ -6,7 +6,7 @@ const port = 3000;
 const revision = process.env.GIT_REVISION || "No revision";
 
 app.get("/", (req, res) => {
-  res.send(`Hello, World how are you! This is a change. Latest Commit: ${revision}`);
+  res.send(`Hello, World how are you! This is a new change. Latest Commit: ${revision}`);
 });
 
 app.listen(port, () => {
